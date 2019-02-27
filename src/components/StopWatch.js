@@ -13,6 +13,10 @@ class Stopwatch extends Component {
         this.intervalID = setInterval(() => this.tick(), 100)
     }
 
+    componentWillUnmount() {
+        clearInterval(this.intervalID);
+    }
+
     tick = () => {
         if(this.state.isRunning) {
             const now = Date.now();
@@ -35,8 +39,6 @@ class Stopwatch extends Component {
     handleReset = () => {
         this.setState({elapsedTime: 0});
     }
-
-
 
     render() {
         const seconds =  Math.floor(this.state.elapsedTime / 1000)
