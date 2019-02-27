@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { Provider } from './context';
 import Header from './Header';
-import Player from './Player'; 
+import Player from './Player';
 import AddPlayerForm from './AddPlayerForm';
 
 class App extends Component {
@@ -33,36 +34,36 @@ class App extends Component {
   prevPlayerId = 4;
 
   handleScoreChange = (index, delta) => {
-    this.setState( prevState => ({
+    this.setState(prevState => ({
       score: prevState.players[index].score += delta
     }));
   }
 
   handleAddPlayer = (name) => {
-    this.setState( prevState => {
+    this.setState(prevState => {
       return {
-      players: [
-        ...prevState.players,
-        {
-          name: name,
-          score: 0,
-          id: this.prevPlayerId += 1
-        }
-      ]
-    };
+        players: [
+          ...prevState.players,
+          {
+            name: name,
+            score: 0,
+            id: this.prevPlayerId += 1
+          }
+        ]
+      };
     });
 
   }
 
   handleRemovePlayer = (id) => {
-    this.setState( prevState => {
+    this.setState(prevState => {
       return {
         players: prevState.players.filter(p => p.id !== id)
       };
     });
   }
 
-  getHighScores = () =>{
+  getHighScores = () => {
     const scores = this.state.players.map(p => p.score);
     const highScore = Math.max(...scores);
     if (highScore) {
@@ -75,28 +76,31 @@ class App extends Component {
   render() {
     const highScore = this.getHighScores();
     return (
-      <div className="scoreboard">
-        <Header 
-          players={this.state.players}
-        />
-  
-        {/* Players list */}
-        {this.state.players.map( (player, index) =>
-          <Player 
-            name={player.name}
-            id={player.id}
-            index={index}
-            key={player.id.toString()} 
-            removePlayer={this.handleRemovePlayer}
-            score={player.score} 
-            changeScore={this.handleScoreChange}  
-            totalPlayers={this.state.players.length} 
-            isHighScore={highScore === player.score}       
-          />
-        )}
+      <Provider value={{
+        players: this.state.players,
+        actions: {
+          changeScore: this.handleScoreChange,
+          removePlayer: this.handleRemovePlayer,
+          addPlayer: this.handleAddPlayer
+        }
+      }}>
+        <div className="scoreboard">
+          <Header />
 
-        <AddPlayerForm addPlayer={this.handleAddPlayer}/>
-      </div>
+          {/* Players list */}
+          {this.state.players.map((player, index) =>
+            <Player
+              {...player}
+              index={index}
+              key={player.id.toString()}
+              totalPlayers={this.state.players.length}
+              isHighScore={highScore === player.score}
+            />
+          )}
+
+          <AddPlayerForm />
+        </div>
+      </Provider>
     );
   }
 }
